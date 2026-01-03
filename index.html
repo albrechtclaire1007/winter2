@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Winter – Bild Wort Zuordnung</title>
+
+<style>
+@font-face{
+  font-family: "Schoulschrëft";
+  src: url("https://albrechtclaire1007.github.io/Schoulschr%C3%ABft/Schoulschr%C3%ABft.ttf") format("truetype");
+  font-display: swap;
+}
+
+html, body{
+  margin:0;
+  height:100%;
+}
+
+body{
+  background: #eaf2ff url("https://i.postimg.cc/BbCyMf2N/winter-background.png") no-repeat center top;
+  background-size: contain;
+  font-family: "Schoulschrëft", sans-serif;
+  overflow: hidden;
+}
+
+/* Layout */
+#game{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:40px;
+}
+
+/* Images */
+.images{
+  display:flex;
+  gap:30px;
+}
+
+.imgBtn{
+  width:200px;
+  height:200px;
+  border:none;
+  background:none;
+  cursor:pointer;
+}
+
+.imgBtn img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  filter: drop-shadow(0 10px 16px rgba(0,0,0,0.25));
+}
+
+/* Words */
+.words{
+  display:flex;
+  gap:25px;
+}
+
+.word{
+  min-width:180px;
+  padding:18px 22px;
+  font-size:40px;
+  background:white;
+  border-radius:18px;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,0.2);
+  text-align:center;
+}
+
+.hidden{
+  visibility:hidden;
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+  <div class="images" id="images"></div>
+  <div class="words" id="words"></div>
+</div>
+
+<script>
+const LEVELS = [
+  [
+    { key:"eisbaer", word:"Der Eisbär", img:"https://i.postimg.cc/JHrCY1hM/eisbaer.png" },
+    { key:"reh",     word:"Das Reh",    img:"https://i.postimg.cc/grsWX6MV/stiefel.png" },
+    { key:"vogel",   word:"Der Vogel",  img:"https://i.postimg.cc/JtxLDBTq/vogel.png" },
+    { key:"pinguin", word:"Der Pinguin",img:"https://i.postimg.cc/fkDsRvfg/pinguin.png" }
+  ],
+  [
+    { key:"muetze",   word:"Die Mütze",   img:"https://i.postimg.cc/3WYhxZFf/muetze.png" },
+    { key:"pullover", word:"Der Pullover",img:"https://i.postimg.cc/grmp2KHf/pullover.png" },
+    { key:"decken",   word:"Die Decken",  img:"https://i.postimg.cc/zHzY2JfJ/decken.png" },
+    { key:"tanne",    word:"Die Tanne",   img:"https://i.postimg.cc/qgwThCmX/tanne.png" }
+  ],
+  [
+    { key:"iglu",  word:"Das Iglu",  img:"https://i.postimg.cc/9wmHgWfq/iglu.png" },
+    { key:"kamin", word:"Der Kamin", img:"https://i.postimg.cc/CnhprFK8/kamin.png" },
+    { key:"kerze", word:"Die Kerze", img:"https://i.postimg.cc/vxYw2Qmt/kerze.png" },
+    { key:"kakao", word:"Der Kakao", img:"https://i.postimg.cc/K3GhpZYK/kakao.png" }
+  ]
+];
+
+let level = 0;
+let selectedImage = null;
+
+const imagesDiv = document.getElementById("images");
+const wordsDiv = document.getElementById("words");
+
+function shuffle(arr){
+  return arr.slice().sort(()=>Math.random()-0.5);
+}
+
+function loadLevel(){
+  imagesDiv.innerHTML = "";
+  wordsDiv.innerHTML = "";
+  selectedImage = null;
+
+  const data = LEVELS[level];
+  const imgOrder = shuffle(data);
+  const wordOrder = shuffle(data);
+
+  imgOrder.forEach(item=>{
+    const b = document.createElement("button");
+    b.className = "imgBtn";
+    b.dataset.key = item.key;
+    b.innerHTML = `<img src="${item.img}">`;
+    b.onclick = ()=>selectImage(b);
+    imagesDiv.appendChild(b);
+  });
+
+  wordOrder.forEach(item=>{
+    const w = document.createElement("div");
+    w.className = "word";
+    w.dataset.key = item.key;
+    w.textContent = item.word;
+    w.onclick = ()=>selectWord(w);
+    wordsDiv.appendChild(w);
+  });
+}
+
+function selectImage(btn){
+  selectedImage = btn;
+}
+
+function selectWord(word){
+  if(!selectedImage) return;
+
+  if(word.dataset.key === selectedImage.dataset.key){
+    word.classList.add("hidden");
+    selectedImage.classList.add("hidden");
+    selectedImage = null;
+
+    if(document.querySelectorAll(".word:not(.hidden)").length === 0){
+      setTimeout(nextLevel, 400);
+    }
+  }
+}
+
+function nextLevel(){
+  level++;
+  if(level < LEVELS.length){
+    loadLevel();
+  }
+}
+
+loadLevel();
+</script>
+
+</body>
+</html>
