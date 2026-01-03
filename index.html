@@ -42,12 +42,21 @@ body{
   gap:30px;
 }
 
+.imgWrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:10px;
+  min-width:200px;
+}
+
 .imgBtn{
   width:200px;
   height:200px;
   border:none;
   background:none;
   cursor:pointer;
+  padding:0;
 }
 
 .imgBtn img{
@@ -57,7 +66,14 @@ body{
   filter: drop-shadow(0 10px 16px rgba(0,0,0,0.25));
 }
 
-/* Words */
+/* Word above image after match */
+.wordAbove{
+  font-size:38px;
+  color:#2e7d32; /* green */
+  visibility:hidden;
+}
+
+/* Words below */
 .words{
   display:flex;
   gap:25px;
@@ -74,7 +90,7 @@ body{
   text-align:center;
 }
 
-.hidden{
+.word.used{
   visibility:hidden;
 }
 </style>
@@ -91,7 +107,7 @@ body{
 const LEVELS = [
   [
     { key:"eisbaer", word:"Der Eisbär", img:"https://i.postimg.cc/JHrCY1hM/eisbaer.png" },
-    { key:"reh",     word:"Das Reh",    img:"https://i.postimg.cc/grsWX6MV/stiefel.png" },
+    { key:"berge",   word:"Die Berge",  img:"https://i.postimg.cc/CBHV4ZwK/berge.png" },
     { key:"vogel",   word:"Der Vogel",  img:"https://i.postimg.cc/JtxLDBTq/vogel.png" },
     { key:"pinguin", word:"Der Pinguin",img:"https://i.postimg.cc/fkDsRvfg/pinguin.png" }
   ],
@@ -129,12 +145,23 @@ function loadLevel(){
   const wordOrder = shuffle(data);
 
   imgOrder.forEach(item=>{
-    const b = document.createElement("button");
-    b.className = "imgBtn";
-    b.dataset.key = item.key;
-    b.innerHTML = `<img src="${item.img}">`;
-    b.onclick = ()=>selectImage(b);
-    imagesDiv.appendChild(b);
+    const wrap = document.createElement("div");
+    wrap.className = "imgWrap";
+    wrap.dataset.key = item.key;
+
+    const wordTop = document.createElement("div");
+    wordTop.className = "wordAbove";
+    wordTop.textContent = item.word;
+
+    const btn = document.createElement("button");
+    btn.className = "imgBtn";
+    btn.dataset.key = item.key;
+    btn.innerHTML = `<img src="${item.img}">`;
+    btn.onclick = ()=>selectImage(btn);
+
+    wrap.appendChild(wordTop);
+    wrap.appendChild(btn);
+    imagesDiv.appendChild(wrap);
   });
 
   wordOrder.forEach(item=>{
@@ -155,12 +182,18 @@ function selectWord(word){
   if(!selectedImage) return;
 
   if(word.dataset.key === selectedImage.dataset.key){
-    word.classList.add("hidden");
-    selectedImage.classList.add("hidden");
+    // mark word below as used
+    word.classList.add("used");
+
+    // show green word above correct image
+    const wrap = selectedImage.parentElement;
+    const topWord = wrap.querySelector(".wordAbove");
+    topWord.style.visibility = "visible";
+
     selectedImage = null;
 
-    if(document.querySelectorAll(".word:not(.hidden)").length === 0){
-      setTimeout(nextLevel, 400);
+    if(document.querySelectorAll(".word:not(.used)").length === 0){
+      setTimeout(nextLevel, 500);
     }
   }
 }
@@ -177,3 +210,4 @@ loadLevel();
 
 </body>
 </html>
+
